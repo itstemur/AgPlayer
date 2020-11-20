@@ -20,6 +20,8 @@ import com.agadimi.agplayer.models.SimpleFile;
 import com.agadimi.agplayer.models.VideoFile;
 import com.agadimi.agplayer.ui.activities.PlayerActivity;
 import com.agadimi.agplayer.ui.adapters.FileListAdapter;
+import com.agadimi.agplayer.ui.utilities.ScreenUtils;
+import com.agadimi.agplayer.ui.utilities.VerticalSpaceItemDecoration;
 
 import java.util.Arrays;
 
@@ -31,6 +33,7 @@ public class FileListFragment extends Fragment implements FileListAdapter.ClickL
     private FolderFile[] folders;
 
 
+    @Inject
     FileListAdapter fileListAdapter;
     LinearLayoutManager layoutManager;
 
@@ -54,21 +57,22 @@ public class FileListFragment extends Fragment implements FileListAdapter.ClickL
         layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         binding.filesRv.setLayoutManager(layoutManager);
 
-        fileListAdapter = new FileListAdapter();
+        binding.filesRv.addItemDecoration(new VerticalSpaceItemDecoration(ScreenUtils.convertDIPToPixels(getContext(), 8)));
+        
         fileListAdapter.setClickListener(this);
         binding.filesRv.setAdapter(fileListAdapter);
 
         if (null != folders)
         {
-            fileListAdapter.setData(folders);
+            setListData(folders);
         }
     }
 
     public boolean backPressed()
     {
-        if(!isFolderLevel)
+        if (!isFolderLevel)
         {
-            fileListAdapter.setData(folders);
+            setListData(folders);
             isFolderLevel = true;
             return true;
         }
@@ -80,7 +84,7 @@ public class FileListFragment extends Fragment implements FileListAdapter.ClickL
         this.folders = folders;
         if (null != fileListAdapter)
         {
-            fileListAdapter.setData(folders);
+            setListData(folders);
         }
     }
 
@@ -92,15 +96,21 @@ public class FileListFragment extends Fragment implements FileListAdapter.ClickL
             FolderFile folder = (FolderFile) simpleFile;
             VideoFile[] children = new VideoFile[folder.getChildren().size()];
             children = folder.getChildren().toArray(new VideoFile[0]);
-            fileListAdapter.setData(children);
+            setListData(children);
             isFolderLevel = false;
         }
         else if (simpleFile instanceof VideoFile)
         {
             VideoFile file = (VideoFile) simpleFile;
             Intent intent = new Intent(getContext(), PlayerActivity.class);
-            intent.putExtra(VideoFile.INTENT_KEY, file.getUri().toString()                                                 );
+            intent.putExtra(VideoFile.INTENT_KEY, file.getUri().toString());
             startActivity(intent);
         }
+    }
+
+    public void setListData(SimpleFile[] data)
+    {
+        fileListAdapter.setData(data);
+        binding.filesRv.scheduleLayoutAnimation();
     }
 }

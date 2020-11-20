@@ -1,5 +1,6 @@
 package com.agadimi.agplayer.ui.adapters;
 
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -7,22 +8,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.agadimi.agplayer.R;
-import com.agadimi.agplayer.models.FolderFile;
+import com.agadimi.agplayer.common.FileManager;
+import com.agadimi.agplayer.common.ThumbnailTaskResultListener;
 import com.agadimi.agplayer.models.SimpleFile;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.agadimi.agplayer.models.VideoFile;
 
 import javax.inject.Inject;
 
-public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ThumbnailTaskResultListener
 {
     private SimpleFile[] data;
     private ClickListener clickListener;
+    private FileManager fileManager;
 
     @Inject
-    public FileListAdapter()
+    public FileListAdapter(FileManager fileManager)
     {
+        this.fileManager = fileManager;
     }
 
     public void setData(SimpleFile[] data)
@@ -54,6 +56,10 @@ public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position)
     {
+        if (getItemViewType(position) == SimpleFile.Type.VIDEO && ((VideoFile) data[position]).getThumbnail() == null)
+        {
+            fileManager.loadThumbnail((VideoFile) data[position], this, position);
+        }
         ((FileViewHolder) holder).update(data[position]);
     }
 
@@ -67,6 +73,13 @@ public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position)
     {
         return data[position].getType();
+    }
+
+    @Override
+    public void onFinished(Bitmap bitmap, int position)
+    {
+        ((VideoFile) data[position]).setThumbnail(bitmap);
+        notifyItemChanged(position);
     }
 
     public interface FileViewHolder

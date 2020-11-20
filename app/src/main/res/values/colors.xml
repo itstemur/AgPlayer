@@ -35,6 +35,13 @@
 
 <!--    LoW OpAcItY-->
     <color name="white_lo_50">#80FFFFFF</color>
-    <color name="white_lo_75">#BFFFFFFF</color>
+    <color name="white_lo_75">#E6FFFFFF</color>
     <color name="teal_300_lo_25">#404DB6AC</color>
+
+<!--    theme-->
+    <color name="one">#000000</color>
+    <color name="two">#ffffff</color>
+    <color name="three">#52057b</color>
+    <color name="four">#892cdc</color>
+    <color name="five">#bc6ff1</color>
 </resources>

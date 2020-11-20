@@ -2,8 +2,8 @@ package com.agadimi.agplayer.app;
 
 import android.app.Application;
 
-import com.agadimi.agplayer.dagger.components.AppComponent;
-import com.agadimi.agplayer.dagger.components.DaggerAppComponent;
+import com.agadimi.agplayer.dagger.components.*;
+import com.agadimi.agplayer.dagger.components.*;
 import com.agadimi.agplayer.dagger.modules.AppModule;
 
 import timber.log.Timber;

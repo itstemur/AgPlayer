@@ -6,26 +6,39 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Size;
 
 import com.agadimi.agplayer.models.FileFactory;
 import com.agadimi.agplayer.models.FolderFile;
 import com.agadimi.agplayer.models.VideoFile;
+import com.agadimi.agplayer.ui.utilities.ScreenUtils;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import timber.log.Timber;
 
 
+@Singleton
 public class FileManager
 {
     private Context context;
+    private ExecutorService executorService;
     private FolderFile[] folders;
     private FileListener fileListener;
+    private Size thumbnailSize;
+
 
     @Inject
     public FileManager(Context context)
     {
         this.context = context;
+        executorService = Executors.newSingleThreadExecutor();
+        int size = ScreenUtils.convertDIPToPixels(context, 48);
+        thumbnailSize = new Size(size, size);
     }
 
     public void setFileListener(FileListener fileListener)
@@ -33,6 +46,8 @@ public class FileManager
         this.fileListener = fileListener;
     }
 
+    // TODO: 11/20/20 MediaStore.Video.Media.DATA is deprecated from API 29
+    // TODO: 11/20/20 move scaning files list to another thread by ExecutorService
     public void scanFiles()
     {
         String[] projection = new String[]{
@@ -115,12 +130,12 @@ public class FileManager
         {
             if (null == folders[i])
             {
-                Timber.d("item %d is null", i);
+//                Timber.d("item %d is null", i);
                 continue;
             }
             else if (null == tempFolders)
             {
-                Timber.d("item %d is the first folder", i);
+//                Timber.d("item %d is the first folder", i);
                 tempFolders = new FolderFile[i + 1];
             }
 
@@ -141,6 +156,11 @@ public class FileManager
         {
             fileListener.onFilesListUpdated(getFolders());
         }
+    }
+
+    public void loadThumbnail(VideoFile file, ThumbnailTaskResultListener resultListener, int position)
+    {
+        executorService.execute(new ThumbnailLoaderTask(file.getPath(), resultListener, position));
     }
 
     public interface FileListener

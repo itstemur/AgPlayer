@@ -4,7 +4,8 @@
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryDark">@color/purple_700</item>
         <item name="colorSecondary">@color/teal_200</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/teal_50</item>
-        <item name="android:windowBackground">@drawable/background</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/three</item>
+        <item name="android:windowBackground">@color/one</item>
+        <item name="android:fontFamily">@font/latest</item>
     </style>
 </resources>

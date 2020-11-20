@@ -1,6 +1,9 @@
 package com.agadimi.agplayer.models;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
+
+import java.util.concurrent.TimeUnit;
 
 public class VideoFile extends SimpleFile
 {
@@ -9,6 +12,7 @@ public class VideoFile extends SimpleFile
     private Uri uri;
     private int duration;
     private int size;
+    private Bitmap thumbnail;
 
     public Uri getUri()
     {
@@ -30,6 +34,15 @@ public class VideoFile extends SimpleFile
         this.duration = duration;
     }
 
+    public String getVideoLength()
+    {
+        return String.format("%d:%d",
+                TimeUnit.MILLISECONDS.toMinutes(duration),
+                TimeUnit.MILLISECONDS.toSeconds(duration) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
+        );
+    }
+
     public int getSize()
     {
         return size;
@@ -38,5 +51,15 @@ public class VideoFile extends SimpleFile
     public void setSize(int size)
     {
         this.size = size;
+    }
+
+    public Bitmap getThumbnail()
+    {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Bitmap thumbnail)
+    {
+        this.thumbnail = thumbnail;
     }
 }
