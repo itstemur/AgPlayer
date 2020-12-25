@@ -21,7 +21,7 @@
         </activity>
         <activity
             android:name=".ui.activities.PlayerActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="fullSensor" />
     </application>
 
 </manifest>

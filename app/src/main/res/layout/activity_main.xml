@@ -7,48 +7,34 @@
     android:orientation="vertical"
     tools:context=".ui.activities.HomeActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
-        app:contentInsetEnd="0dp"
-        app:contentInsetLeft="0dp"
-        app:contentInsetRight="0dp"
-        app:contentInsetStart="0dp"
-        android:background="@drawable/border_b"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="@color/surface">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+<!--        <ImageView-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="right"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:padding="14dp"-->
+<!--            android:src="@drawable/ic_menu" />-->
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="14dp"
-                android:src="@drawable/ic_menu" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|left"
-                android:text="@string/app_name"
-                android:textColor="@color/five"
-                android:textSize="22sp"
-                android:textStyle=""
-                android:fontFamily="@font/latest"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </FrameLayout>
-    </androidx.appcompat.widget.Toolbar>
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|left"
+            android:fontFamily="@font/latest"
+            android:text="@string/app_name"
+            android:textColor="@color/on_surface"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </FrameLayout>
 
 
     <FrameLayout

@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    theme-->
+    <color name="background">#202529</color>
+    <color name="surface">#32383D</color>
+    <color name="primary">#1BC6B4</color>
+    <color name="secondary">#A1B4C4</color>
+    <color name="on_background">#E4E4E4</color>
+    <color name="on_surface">#ffffff</color>
+    <color name="on_primary">#32383D</color>
+    <color name="on_secondary">#32383D</color>
+
+    <!--    <color name="background">#202529</color>-->
+    <!--    <color name="surface">#4C555C</color>-->
+    <!--    <color name="primary">#1BC6B4</color>-->
+    <!--    <color name="secondary">#A1B4C4</color>-->
+    <!--    <color name="on_background">#dddddd</color>-->
+    <!--    <color name="on_surface">#ffffff</color>-->
+    <!--    <color name="on_primary">#32393d</color>-->
+    <!--    <color name="on_secondary">#32393d</color>-->
+
     <color name="purple_50">#EDE7F6</color>
     <color name="purple_100">#D1C4E9</color>
     <color name="purple_200">#FFBB86FC</color>
@@ -33,15 +52,18 @@
     <color name="orange_100">#FBE0D3</color>
     <color name="yellow_400">#FFC45A</color>
 
-<!--    LoW OpAcItY-->
+    <!--    LoW OpAcItY-->
     <color name="white_lo_50">#80FFFFFF</color>
     <color name="white_lo_75">#E6FFFFFF</color>
+    <color name="black_lo_25">#40000000</color>
     <color name="teal_300_lo_25">#404DB6AC</color>
 
-<!--    theme-->
+    <!--    theme-->
     <color name="one">#000000</color>
     <color name="two">#ffffff</color>
     <color name="three">#52057b</color>
     <color name="four">#892cdc</color>
     <color name="five">#bc6ff1</color>
+    <color name="light_blue_400">#FF29B6F6</color>
+    <color name="light_blue_600">#FF039BE5</color>
 </resources>

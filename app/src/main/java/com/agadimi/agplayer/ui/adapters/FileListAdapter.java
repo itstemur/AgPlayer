@@ -78,8 +78,11 @@ public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onFinished(Bitmap bitmap, int position)
     {
-        ((VideoFile) data[position]).setThumbnail(bitmap);
-        notifyItemChanged(position);
+        if ((getItemViewType(position) == SimpleFile.Type.VIDEO))
+        {
+            ((VideoFile) data[position]).setThumbnail(bitmap);
+            notifyItemChanged(position);
+        }
     }
 
     public interface FileViewHolder

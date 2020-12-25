@@ -103,7 +103,7 @@ public class FileListFragment extends Fragment implements FileListAdapter.ClickL
         {
             VideoFile file = (VideoFile) simpleFile;
             Intent intent = new Intent(getContext(), PlayerActivity.class);
-            intent.putExtra(VideoFile.INTENT_KEY, file.getUri().toString());
+            intent.putExtra(VideoFile.INTENT_KEY, file);
             startActivity(intent);
         }
     }
