@@ -19,7 +19,7 @@
     <com.google.android.exoplayer2.ui.SubtitleView
         android:id="@+id/subtitle_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <View
         android:id="@+id/player_overlay"
@@ -55,25 +55,47 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="60dp"
             android:layout_marginRight="32dp"
-            android:fontFamily="@font/latest"
             android:ellipsize="end"
+            android:fontFamily="@font/latest"
+            android:gravity="center_vertical"
             android:textColor="@color/white"
-            android:textSize="17sp"
-            android:gravity="center_vertical"/>
+            android:textSize="17sp" />
     </FrameLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/bottom_control_panel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/gradient_player_controller_bg"
+        android:orientation="vertical"
         android:paddingLeft="32dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:paddingRight="32dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/current_position_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:text="00:00"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/duration_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="00:00"
+                android:textColor="@color/white" />
+        </FrameLayout>
 
         <com.agadimi.agplayer.common.SeekBar
             android:id="@+id/seekbar"
@@ -83,7 +105,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:orientation="horizontal">
 
@@ -98,32 +119,32 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/repeat_btn"
+                app:layout_constraintRight_toLeftOf="@id/subtitle_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/repeat_btn"
+                android:id="@+id/subtitle_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_loop"
+                android:src="@drawable/exo_ic_subtitle_off"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/lock_btn"
-                app:layout_constraintRight_toLeftOf="@id/rotate_btn"
+                app:layout_constraintRight_toLeftOf="@id/audiotrack_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/rotate_btn"
+                android:id="@+id/audiotrack_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_screen_rotation"
+                android:src="@drawable/ic_audiotrack"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/repeat_btn"
+                app:layout_constraintLeft_toRightOf="@id/subtitle_btn"
                 app:layout_constraintRight_toLeftOf="@id/resize_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -134,13 +155,13 @@
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_close"
+                android:src="@drawable/ic_zoom_out"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/rotate_btn"
+                app:layout_constraintLeft_toRightOf="@id/audiotrack_btn"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/center_control_panel"
@@ -182,4 +203,17 @@
             android:src="@drawable/ic_next" />
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/unlock_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_white_round_v2"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_lock_close"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

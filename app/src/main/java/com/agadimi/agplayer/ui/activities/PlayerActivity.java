@@ -3,13 +3,15 @@ package com.agadimi.agplayer.ui.activities;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.TypedValue;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.agadimi.agplayer.R;
 import com.agadimi.agplayer.app.App;
-import com.agadimi.agplayer.common.DoubleClickListener;
+import com.agadimi.agplayer.common.PlayerOverlayTouchHandler;
 import com.agadimi.agplayer.common.SeekBar;
 import com.agadimi.agplayer.databinding.ActivityPlayerBinding;
 import com.agadimi.agplayer.models.VideoFile;
@@ -20,6 +22,8 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
@@ -27,19 +31,26 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.gson.Gson;
 
+import java.util.List;
+
 import timber.log.Timber;
 
-public class PlayerActivity extends AppCompatActivity implements Player.EventListener, Runnable, SeekBar.OnProgressChangedListener
+import static com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT;
+
+public class PlayerActivity extends AppCompatActivity implements Player.EventListener, Runnable, SeekBar.OnProgressChangedListener, TextOutput
 {
     private ActivityPlayerBinding binding;
     private SimpleExoPlayer exoPlayer;
     private DefaultTrackSelector defaultTrackSelector;
     private Handler progressHandler;
-
+    //    private Handler controlsVisibilityHandler;
     private VideoFile theFile;
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0;
+    private long controlsShowedAt = 0;
+    private boolean isControlsVisible = true;
+    private boolean isControlsLocked = false;
 
 
     @Override
@@ -55,6 +66,12 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
         setContentView(binding.getRoot());
         setupClicksAndStuff();
 
+        if (savedInstanceState != null)
+        {
+            playWhenReady = savedInstanceState.getBoolean("play_when_ready", playWhenReady);
+            currentWindow = savedInstanceState.getInt("window_index", currentWindow);
+            playbackPosition = savedInstanceState.getLong("playback_position", playbackPosition);
+        }
 
         handleIntent();
         displayContent();
@@ -63,18 +80,48 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
     private void setupClicksAndStuff()
     {
         binding.backBtn.setOnClickListener(v -> onBackPressed());
-        binding.playerOverlay.setOnClickListener(new DoubleClickListener()
+        binding.playerOverlay.setOnClickListener(new PlayerOverlayTouchHandler()
         {
             @Override
             public void onDoubleClick()
             {
-                togglePlayer();
+                if (!isControlsLocked) // if controls are locked, then ignore double click
+                {
+                    togglePlayer();
+                }
+            }
+
+            @Override
+            public void onClick(View v)
+            {
+                super.onClick(v);
+                if (isControlsVisible)
+                {
+                    hideControls();
+                }
+                else
+                {
+                    showControls();
+                }
             }
         });
         binding.playPauseBtn.setOnClickListener(v -> togglePlayer());
         binding.lockBtn.setOnClickListener(v -> {
+            hideControls();
+            isControlsLocked = true;
+            showControls();
+        });
+        binding.unlockBtn.setOnClickListener(v -> {
+            hideControls();
+            isControlsLocked = false;
+            showControls();
         });
         binding.seekbar.setOnProgressChangedListener(this);
+        binding.resizeBtn.setOnClickListener(v -> {
+            int currentResizeMode = binding.playerView.getResizeMode() + 1;
+            if (currentResizeMode > 4) currentResizeMode = RESIZE_MODE_FIT;
+            binding.playerView.setResizeMode(currentResizeMode);
+        });
     }
 
     private void togglePlayer()
@@ -133,6 +180,15 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        outState.putBoolean("play_when_ready", exoPlayer.getPlayWhenReady());
+        outState.putInt("window_index", exoPlayer.getCurrentWindowIndex());
+        outState.putLong("playback_position", exoPlayer.getCurrentPosition());
+        super.onSaveInstanceState(outState);
+    }
+
     private void handleIntent()
     {
         try
@@ -165,10 +221,13 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
         exoPlayer = new SimpleExoPlayer.Builder(this)
                 .setTrackSelector(defaultTrackSelector)
                 .build();
-        exoPlayer.addListener(this);
-        exoPlayer.setAudioAttributes(audioAttributes, true);
         binding.playerView.setPlayer(exoPlayer);
-        MediaItem mediaItem = MediaItem.fromUri(theFile.getUri());
+        binding.playerView.getSubtitleView().setVisibility(View.GONE);
+        binding.subtitleView.setFixedTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        exoPlayer.addListener(this);
+        exoPlayer.addTextOutput(this);
+        exoPlayer.setAudioAttributes(audioAttributes, true);
+        MediaItem mediaItem = MediaItem.fromUri(theFile.getUri());//.buildUpon().setSubtitles().build();
         exoPlayer.setMediaItem(mediaItem);
         exoPlayer.setPlayWhenReady(playWhenReady);
         exoPlayer.seekTo(currentWindow, playbackPosition);
@@ -317,8 +376,10 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
             case Player.STATE_IDLE:
                 break;
             case Player.STATE_BUFFERING:
+                onVideoBuffering();
                 break;
             case Player.STATE_READY:
+                refreshDuration();
                 break;
             case Player.STATE_ENDED:
                 onVideoEnded();
@@ -331,10 +392,14 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
     {
         if (exoPlayer.isPlaying())
         {
-//            Timber.d("Duration: %d, Current position: %d", exoPlayer.getDuration(), exoPlayer.getCurrentPosition());
+            long currentPos = exoPlayer.getCurrentPosition();
+            if (isControlsVisible && currentPos - 5000 > controlsShowedAt)
+            {
+                hideControls();
+            }
             binding.seekbar.setProgress((float) exoPlayer.getCurrentPosition() / (float) exoPlayer.getDuration());
+            refreshCurrentPosition();
             progressHandler.postDelayed(this, 100);
-//            Timber.d("Player state: %s", getPlayerState());
         }
     }
 
@@ -356,6 +421,13 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
     }
 
     @Override
+    public void onProgressDragStarted()
+    {
+        Timber.i("Progress drag started");
+        if (exoPlayer.isPlaying()) exoPlayer.pause();
+    }
+
+    @Override
     public void onProgressChanged(float progress)
     {
         Timber.d("Position manually set.");
@@ -367,9 +439,16 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
         }
     }
 
+    @Override
+    public void onProgressDragStopped()
+    {
+        Timber.i("Progress drag stopped");
+        exoPlayer.play();
+    }
+
     public void onVideoBuffering()
     {
-
+        showControls();
     }
 
     public void onVideoEnded()
@@ -378,7 +457,57 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
         //play next or finish activity
 //        if (!BuildConfig.DEBUG)
 //        {
-//            finish();
+        finish();
 //        }
     }
+
+    @Override
+    public void onCues(List<Cue> cues)
+    {
+        binding.subtitleView.setCues(cues);
+    }
+
+    public void showControls()
+    {
+        if (isControlsLocked)
+        {
+            binding.unlockBtn.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            binding.topControlPanel.setVisibility(View.VISIBLE);
+            binding.centerControlPanel.setVisibility(View.VISIBLE);
+            binding.bottomControlPanel.setVisibility(View.VISIBLE);
+        }
+        isControlsVisible = true;
+        controlsShowedAt = exoPlayer.getCurrentPosition();
+        Timber.i("Controls showed up at: %d", controlsShowedAt);
+    }
+
+    public void hideControls()
+    {
+        if (isControlsLocked)
+        {
+            binding.unlockBtn.setVisibility(View.GONE);
+        }
+        else
+        {
+            binding.topControlPanel.setVisibility(View.GONE);
+            binding.centerControlPanel.setVisibility(View.GONE);
+            binding.bottomControlPanel.setVisibility(View.GONE);
+        }
+        isControlsVisible = false;
+    }
+
+    private void refreshDuration()
+    {
+        binding.durationTv.setText(VideoFile.convertMillisToTime(exoPlayer.getDuration()));
+    }
+
+    private void refreshCurrentPosition()
+    {
+        binding.currentPositionTv.setText(VideoFile.convertMillisToTime(exoPlayer.getCurrentPosition()));
+    }
+
+
 }

@@ -114,6 +114,7 @@ public class SeekBar extends View
         {
             case MotionEvent.ACTION_DOWN:
                 movingManually = true;
+                if(onProgressChangedListener != null) onProgressChangedListener.onProgressDragStarted();
                 setProgress(event.getX() / contentWidth, true);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -121,6 +122,7 @@ public class SeekBar extends View
                 break;
             case MotionEvent.ACTION_UP:
                 movingManually = false;
+                if(onProgressChangedListener != null) onProgressChangedListener.onProgressDragStopped();
                 invalidate();
                 break;
             default:
@@ -219,8 +221,11 @@ public class SeekBar extends View
         this.onProgressChangedListener = onProgressChangedListener;
     }
 
+
     public interface OnProgressChangedListener
     {
+        void onProgressDragStarted();
         void onProgressChanged(float progress);
+        void onProgressDragStopped();
     }
 }

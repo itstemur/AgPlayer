@@ -52,11 +52,7 @@ public class VideoFile extends SimpleFile implements Parcelable
 
     public String getVideoLength()
     {
-        return String.format("%d:%d",
-                TimeUnit.MILLISECONDS.toMinutes(duration),
-                TimeUnit.MILLISECONDS.toSeconds(duration) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
-        );
+        return convertMillisToTime(duration);
     }
 
     public int getSize()
@@ -108,4 +104,24 @@ public class VideoFile extends SimpleFile implements Parcelable
             return new VideoFile[size];
         }
     };
+
+    public static String convertMillisToTime(long millis)
+    {
+        if (millis > 3600000)
+        {
+            return String.format(
+                    "%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                    TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
+                    TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1)
+            );
+        }
+        else
+        {
+            return String.format(
+                    "%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(millis),
+                    TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1)
+            );
+        }
+    }
 }
