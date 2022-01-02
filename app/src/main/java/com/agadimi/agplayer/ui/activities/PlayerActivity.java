@@ -80,10 +80,67 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
     private void setupClicksAndStuff()
     {
         binding.backBtn.setOnClickListener(v -> onBackPressed());
-        binding.playerOverlay.setOnClickListener(new PlayerOverlayTouchHandler()
+        binding.playerOverlay.setOnTouchListener(new PlayerOverlayTouchHandler()
         {
+            private long playbackPositionAnchor = 0;
+            private int deviceVolumeAnchor = 0;
+            private float volumeAnchor = 0;
+
             @Override
-            public void onDoubleClick()
+            public void onDragStarted()
+            {
+                super.onDragStarted();
+                Timber.w("-------------------------- DRAG STARTED!!!!! --------------------------");
+                playbackPositionAnchor = exoPlayer.getCurrentPosition();
+                deviceVolumeAnchor = exoPlayer.getDeviceVolume();
+                volumeAnchor = exoPlayer.getVolume();
+
+            }
+
+            @Override
+            public void onRightVerticalDrag(float movement)
+            {
+                super.onRightVerticalDrag(movement);
+                Timber.w("------ onRightVerticalDrag -> movement: %f ------", movement);
+
+                exoPlayer.setDeviceVolume(deviceVolumeAnchor + (int) (-10 * movement));
+
+                Timber.i("deviceVolume: %d, volume: %f", exoPlayer.getDeviceVolume(), exoPlayer.getVolume());
+            }
+
+            @Override
+            public void onLeftVerticalDrag(float movement)
+            {
+                super.onLeftVerticalDrag(movement);
+                Timber.w("------ onLeftVerticalDrag -> movement: %f ------", movement);
+//                exoPlayer.decreaseDeviceVolume();
+                Timber.i("deviceVolume: %d, volume: %f", exoPlayer.getDeviceVolume(), exoPlayer.getVolume());
+            }
+
+            @Override
+            public void onHorizontalDrag(float movement)
+            {
+                Timber.w("------ onHorizontalDrag -> movement: %f ------", movement);
+//                onProgressDragStarted();
+                if (exoPlayer.getPlaybackState() == Player.STATE_READY)
+                {
+                    long piece = (long) ((movement / 10) * exoPlayer.getDuration());
+                    if (0 < piece && piece < 500)
+                    {
+                        piece = 500;
+                    }
+                    else if (-500 < piece && piece < 0)
+                    {
+                        piece = -500;
+                    }
+                    long position = playbackPositionAnchor + piece;
+                    Timber.d("Picked position: %d", position);
+                    exoPlayer.seekTo(currentWindow, position);
+                }
+            }
+
+            @Override
+            public void onOverlayDoubleClick(View v)
             {
                 if (!isControlsLocked) // if controls are locked, then ignore double click
                 {
@@ -92,9 +149,9 @@ public class PlayerActivity extends AppCompatActivity implements Player.EventLis
             }
 
             @Override
-            public void onClick(View v)
+            public void onOverlayClick(View v)
             {
-                super.onClick(v);
+                super.onOverlayClick(v);
                 if (isControlsVisible)
                 {
                     hideControls();

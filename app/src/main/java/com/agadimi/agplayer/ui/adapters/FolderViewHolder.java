@@ -26,7 +26,8 @@ class FolderViewHolder extends RecyclerView.ViewHolder implements FileListAdapte
     {
         FolderFile folder = (FolderFile) simpleFile;
         binding.folderNameTv.setText(folder.getName());
-        binding.childFileCountTv.setText(String.valueOf(folder.getChildren().size()));
+        int videoCount = folder.getChildren().size();
+        binding.childFileCountTv.setText(videoCount > 1 ? String.format("%d videos", videoCount) : "1 video");
 
         itemView.setOnClickListener(v -> {
             clickListener.onFileClick(simpleFile);
